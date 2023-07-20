@@ -29,20 +29,8 @@ if (navigator.geolocation) {
         .bindPopup('Workout')
         .openPopup();
       map.on('click', function(mapEvent) {
-        const { lat, lng } = mapEvent.latlng;
-        L.marker([lat, lng])
-          .addTo(map)
-          .bindPopup(
-            L.popup({
-              maxWidth: 250,
-              minWidth: 150,
-              autoClose: false,
-              closeOnClick: false,
-              className: 'running-popup'
-            })
-          )
-          .setPopupContent('Workout')
-          .openPopup();
+        form.classList.remove('hidden');
+        inputDistance.focus();
       }); /*this on method des'nt come from javasxript instead it comes from the leaflet */
     },
     function() {
@@ -50,3 +38,28 @@ if (navigator.geolocation) {
     }
   );
 }
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  inputDistance.value = inputElevation.value = inputDuration.value = inputCadence.value =
+    '';
+  const { lat, lng } = mapEvent.latlng;
+  L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup(
+      L.popup({
+        maxWidth: 250,
+        minWidth: 150,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup'
+      })
+    )
+    .setPopupContent('Workout')
+    .openPopup();
+});
+
+inputType.addEventListener('change', function() {
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+});
