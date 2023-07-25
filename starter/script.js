@@ -17,25 +17,7 @@ class App {
 
   constructor() {
     this._getPosition();
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      inputDistance.value = inputElevation.value = inputDuration.value = inputCadence.value =
-        '';
-      const { lat, lng } = mapEvent.latlng;
-      L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup(
-          L.popup({
-            maxWidth: 250,
-            minWidth: 150,
-            autoClose: false,
-            closeOnClick: false,
-            className: 'running-popup'
-          })
-        )
-        .setPopupContent('Workout')
-        .openPopup();
-    });
+    form.addEventListener('submit', this.newWorkout.bind(this));
 
     inputType.addEventListener('change', function() {
       inputElevation
@@ -67,15 +49,33 @@ class App {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.#map);
 
-    this.#map.on('click', function(mapE) {
-      this.#mapEvent = mapE;
-      form.classList.remove('hidden');
-      inputDistance.focus();
-    });
+    this.#map.on('click', this._showForm.bind(this));
   }
-  _showForm() {}
+  _showForm(mapE) {
+    this.#mapEvent = mapE;
+    form.classList.remove('hidden');
+    inputDistance.focus();
+  }
   _toggleElevationFeild() {}
-  newWorkout() {}
+  newWorkout() {
+    e.preventDefault();
+    inputDistance.value = inputElevation.value = inputDuration.value = inputCadence.value =
+      '';
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker([lat, lng])
+      .addTo(map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 150,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup'
+        })
+      )
+      .setPopupContent('Workout')
+      .openPopup();
+  }
 }
 
 const app = new App();
