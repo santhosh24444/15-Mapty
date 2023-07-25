@@ -17,6 +17,32 @@ class App {
 
   constructor() {
     this._getPosition();
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      inputDistance.value = inputElevation.value = inputDuration.value = inputCadence.value =
+        '';
+      const { lat, lng } = mapEvent.latlng;
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(
+          L.popup({
+            maxWidth: 250,
+            minWidth: 150,
+            autoClose: false,
+            closeOnClick: false,
+            className: 'running-popup'
+          })
+        )
+        .setPopupContent('Workout')
+        .openPopup();
+    });
+
+    inputType.addEventListener('change', function() {
+      inputElevation
+        .closest('.form__row')
+        .classList.toggle('form__row--hidden');
+      inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+    });
   }
 
   _getPosition() {
@@ -41,8 +67,8 @@ class App {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.#map);
 
-    this.#map.on('click', function(mapEvent) {
-      this.#mapEvent = mapEvent;
+    this.#map.on('click', function(mapE) {
+      this.#mapEvent = mapE;
       form.classList.remove('hidden');
       inputDistance.focus();
     });
@@ -53,29 +79,3 @@ class App {
 }
 
 const app = new App();
-app._getPosition();
-
-form.addEventListener('submit', function(e) {
-  e.preventDefault();
-  inputDistance.value = inputElevation.value = inputDuration.value = inputCadence.value =
-    '';
-  const { lat, lng } = mapEvent.latlng;
-  L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(
-      L.popup({
-        maxWidth: 250,
-        minWidth: 150,
-        autoClose: false,
-        closeOnClick: false,
-        className: 'running-popup'
-      })
-    )
-    .setPopupContent('Workout')
-    .openPopup();
-});
-
-inputType.addEventListener('change', function() {
-  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
-  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-});
