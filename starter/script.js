@@ -10,7 +10,41 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
-let map, mapEvent;
+
+class Workout {
+  date = new Date();
+  id = (Date.now() + '').slice(-10);
+  constructor(coords, distance, duration) {
+    this.coords = coords;
+    this.distance = distance;
+    this.duration = duration;
+  }
+}
+
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    super(coords, distance, duration);
+    this.cadence = cadence;
+    this.calcPace();
+  }
+  calcPace() {
+    this.pace = this.duration / this.distance;
+    return this.pace;
+  }
+}
+class Cycling extends Workout {
+  constructor(coords, distance, duration, elevationGain) {
+    super(coords, distance, duration);
+    this.elevationGain = elevationGain;
+    this.calcSpeed();
+  }
+  calcSpeed() {
+    this.speed = this.distance / (this.duration / 60);
+  }
+}
+
+const run1 = new Running([39, -12], 5.2, 24, 178);
+const cycle1 = new Cycling([39, -12], 27, 95, 523);
 class App {
   #map;
   #mapEvent;
@@ -19,12 +53,7 @@ class App {
     this._getPosition();
     form.addEventListener('submit', this.newWorkout.bind(this));
 
-    inputType.addEventListener('change', function() {
-      inputElevation
-        .closest('.form__row')
-        .classList.toggle('form__row--hidden');
-      inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-    });
+    inputType.addEventListener('change', this._toggleElevationFeild);
   }
 
   _getPosition() {
@@ -56,11 +85,40 @@ class App {
     form.classList.remove('hidden');
     inputDistance.focus();
   }
-  _toggleElevationFeild() {}
+  _toggleElevationFeild() {
+    inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+    inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
   newWorkout() {
+    const validInputs = (...inputs) =>
+      inputs.every(inp => Number.isFinite(inp));
+
     e.preventDefault();
-    inputDistance.value = inputElevation.value = inputDuration.value = inputCadence.value =
-      '';
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = inputDuration.value;
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+      if (
+        !validInputs(distance, duration, cadence)
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+      )
+        return alert('Please enter a Positive number');
+    }
+
+    if (type === 'cycling') {
+      const elevation = +inputElevation.value;
+      if (
+        !validInputs(distance, duration, elevation)
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+      )
+        return alert('Please enter a Positive number');
+    }
+
     const { lat, lng } = this.#mapEvent.latlng;
     L.marker([lat, lng])
       .addTo(map)
